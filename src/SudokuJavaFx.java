@@ -6,7 +6,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.animation.Timeline;
+import javafx.animation.KeyFrame;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
@@ -16,6 +20,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class SudokuJavaFx extends Application {
 	
@@ -33,6 +38,8 @@ public class SudokuJavaFx extends Application {
 
     private Tile[][] grid = new Tile[X_TILES][Y_TILES];
     private Scene scene;
+    
+    private File file;
     
     private Tile currentTile;
 
@@ -197,34 +204,14 @@ public class SudokuJavaFx extends Application {
         scene = new Scene(createContent());
 
         stage.setScene(scene);
-        stage.show();
+        stage.show();      
        
+        FileListener fl = new FileListener();
+        fl.setApp(this);
+        fl.start();
     }
 
     public static void main(String[] args) {
         launch(args);
-        
-
-        //File reading and game loop
-        try {
-            File file = new File("src/Commands.txt");
-            FileReader fr = new FileReader(file);
-            BufferedReader br = new BufferedReader(fr);
-            String line;
-            while((line = br.readLine()) != null) {
-                System.out.println(line);
-               // handleCommand(line);
-                try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-            }
-            br.close();
-            fr.close();
-        }  catch (IOException e) {
-            System.err.println("Caught IOException: " + e.getMessage());
-        }
     }
 }
