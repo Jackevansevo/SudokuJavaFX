@@ -56,11 +56,9 @@ public class SudokuJavaFx extends Application {
 			br.close();
 			fr.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Caught IOException: " + e.getMessage());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Caught IOException: " + e.getMessage());
 		}
 
 
