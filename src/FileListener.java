@@ -15,14 +15,14 @@ class FileListener extends Thread{
 
 		//File reading and game loop
 		try {
-			File file = new File("src/Commands.txt");
+			File file = new File("src/Command_List.txt");
 			FileReader fr = new FileReader(file);
 			BufferedReader br = new BufferedReader(fr);
 			String line;
 			while((line = br.readLine()) != null) {
 				app.handleCommand(line);
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(200);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
