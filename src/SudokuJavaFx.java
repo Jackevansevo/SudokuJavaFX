@@ -23,7 +23,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class SudokuJavaFx extends Application {
-	
+
 	private enum coord {NORTH, EAST};
 
     private static final int TILE_SIZE = 40;
@@ -34,20 +34,20 @@ public class SudokuJavaFx extends Application {
     private static final int BONUS_BORDER = 2;
     private static final int W = X_TILES*TILE_SIZE + BORDER_SIZE + 3*BONUS_BORDER;
     private static final int H = Y_TILES*TILE_SIZE + BORDER_SIZE + 3*BONUS_BORDER;
-    
+
 
     private Tile[][] grid = new Tile[X_TILES][Y_TILES];
     private Scene scene;
-    
+
     private File file;
-    
+
     private Tile currentTile;
 
     private Parent createContent() {
         Pane root = new Pane();
         root.setPrefSize(W, H);
         root.setStyle("-fx-background-color: black;");
-        
+
         for (int y = 0; y < Y_TILES; y++) {
             for (int x = 0; x < X_TILES; x++) {
                 Tile tile = new Tile(x, y);
@@ -63,15 +63,15 @@ public class SudokuJavaFx extends Application {
 
             }
         }
-        
+
         currentTile = grid[0][5];
-        
+
         currentTile.setSelected(true);
         currentTile.setTileText("3");
-        
+
         return root;
     }
-    
+
 
     private List<Tile> getNeighbors(Tile tile) {
         List<Tile> neighbors = new ArrayList<>();
@@ -123,10 +123,10 @@ public class SudokuJavaFx extends Application {
             border.setFill(Color.BLUE);
             cell.setStroke(Color.LIGHTGRAY);
             cell.setFill(Color.WHITE);
-            
+
             text.setFont(Font.font(18));
             text.setText("0");
-            
+
             border.setVisible((selected ? true : false));
 
             getChildren().addAll(border, cell, text);
@@ -134,10 +134,10 @@ public class SudokuJavaFx extends Application {
             setTranslateX(x * TILE_SIZE + BORDER_SIZE + BONUS_BORDER*(x/3));
             setTranslateY(y * TILE_SIZE + BORDER_SIZE + BONUS_BORDER*(y/3));
         }
-        
+
         public void setSelected(boolean bool){
         	selected = bool;
-        	
+
         	border.setVisible(bool);
         	if(bool){ //Decrease the white cell size, to increase the selected border size
         		cell.setWidth(TILE_SIZE - 6*BORDER_SIZE);
@@ -147,13 +147,13 @@ public class SudokuJavaFx extends Application {
         		cell.setHeight(TILE_SIZE - 2*BORDER_SIZE);
         	}
         }
-        
+
         public void setTileText(String newText){
         	text.setText(newText);
         }
 
     }
-    
+
     private void move(Point moveCoord) {
     	int newX = currentTile.x + moveCoord.x;
     	int newY = currentTile.y + moveCoord.y;
@@ -162,17 +162,17 @@ public class SudokuJavaFx extends Application {
     		System.out.println("well fuck");
     		return;
     	}
-    	
+
     	currentTile.setSelected(false);
     	currentTile = grid[newX][newY];
     	currentTile.setSelected(true);
-		
+
 	}
-    
+
     private void insert(char number){
     	currentTile.setTileText(Character.toString(number));
     }
-    
+
 
     public void handleCommand(String command){
     	System.out.println(command);
@@ -204,8 +204,8 @@ public class SudokuJavaFx extends Application {
         scene = new Scene(createContent());
 
         stage.setScene(scene);
-        stage.show();      
-       
+        stage.show();
+
         FileListener fl = new FileListener();
         fl.setApp(this);
         fl.start();
