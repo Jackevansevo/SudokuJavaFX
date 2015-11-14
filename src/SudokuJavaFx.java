@@ -1,12 +1,14 @@
+import java.awt.Point;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -16,6 +18,8 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class SudokuJavaFx extends Application {
+	
+	private enum coord {NORTH, EAST};
 
     private static final int TILE_SIZE = 40;
 
@@ -29,6 +33,8 @@ public class SudokuJavaFx extends Application {
 
     private Tile[][] grid = new Tile[X_TILES][Y_TILES];
     private Scene scene;
+    
+    private Tile currentTile;
 
     private Parent createContent() {
         Pane root = new Pane();
@@ -51,20 +57,14 @@ public class SudokuJavaFx extends Application {
             }
         }
         
-        grid[4][5].setSelected(true);
-        grid[7][2].setTileText("3");
+        currentTile = grid[0][5];
+        
+        currentTile.setSelected(true);
+        currentTile.setTileText("3");
         
         return root;
     }
     
-
-    public void sayKeyPress(KeyEvent e){
-    	System.out.println(e.getCode());
-    }
-    
-    public void mousePress(){
-    	System.out.println("Mouse pressed");
-    }
 
     private List<Tile> getNeighbors(Tile tile) {
         List<Tile> neighbors = new ArrayList<>();
@@ -126,7 +126,6 @@ public class SudokuJavaFx extends Application {
 
             setTranslateX(x * TILE_SIZE + BORDER_SIZE + BONUS_BORDER*(x/3));
             setTranslateY(y * TILE_SIZE + BORDER_SIZE + BONUS_BORDER*(y/3));
-
         }
         
         public void setSelected(boolean bool){
@@ -147,18 +146,85 @@ public class SudokuJavaFx extends Application {
         }
 
     }
+    
+    private void move(Point moveCoord) {
+    	int newX = currentTile.x + moveCoord.x;
+    	int newY = currentTile.y + moveCoord.y;
+
+    	if((newX < 0 || newX > 8) || (newY < 0 || newY > 8)){
+    		System.out.println("well fuck");
+    		return;
+    	}
+    	
+    	currentTile.setSelected(false);
+    	currentTile = grid[newX][newY];
+    	currentTile.setSelected(true);
+		
+	}
+    
+    private void insert(char number){
+    	currentTile.setTileText(Character.toString(number));
+    }
+    
+
+    public void handleCommand(String command){
+    	System.out.println(command);
+    	switch(command.charAt(0)){
+    	case 'M':
+    		switch(command.charAt(1)){
+    		case 'U':
+    			move(new Point(0, -1));
+    			break;
+    		case 'R':
+    			move(new Point(1, 0));
+    			break;
+    		case 'D':
+    			move(new Point(0, 1));
+    			break;
+    		case 'L':
+    			move(new Point(-1, 0));
+    			break;
+    		}
+    		break;
+    	case 'I':
+    		insert(command.charAt(1));
+    		break;
+    	}
+    }
 
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) throws IOException {
         scene = new Scene(createContent());
 
         stage.setScene(scene);
         stage.show();
-        
-        
+       
     }
 
     public static void main(String[] args) {
         launch(args);
+        
+
+        //File reading and game loop
+        try {
+            File file = new File("src/Commands.txt");
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+            String line;
+            while((line = br.readLine()) != null) {
+                System.out.println(line);
+               // handleCommand(line);
+                try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            }
+            br.close();
+            fr.close();
+        }  catch (IOException e) {
+            System.err.println("Caught IOException: " + e.getMessage());
+        }
     }
 }
