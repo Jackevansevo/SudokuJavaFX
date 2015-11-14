@@ -20,9 +20,10 @@ class FileListener extends Thread{
 			BufferedReader br = new BufferedReader(fr);
 			String line;
 			while((line = br.readLine()) != null) {
+				System.out.println("HI MATT YOU TWAT ps i'm reading");
 				app.handleCommand(line);
 				try {
-					Thread.sleep(200);
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
