@@ -15,7 +15,7 @@ class FileListener extends Thread{
 
 		//File reading and game loop
 		try {
-			File file = new File("src/Command_List.txt");
+			File file = new File("./Command_List.txt");
 			FileReader fr = new FileReader(file);
 			BufferedReader br = new BufferedReader(fr);
 			String line;
