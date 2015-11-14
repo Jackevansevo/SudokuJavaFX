@@ -2,8 +2,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -15,11 +18,14 @@ import javafx.stage.Stage;
 public class SudokuJavaFx extends Application {
 
     private static final int TILE_SIZE = 40;
-    private static final int W = 800;
-    private static final int H = 600;
 
-    private static final int X_TILES = W / TILE_SIZE;
-    private static final int Y_TILES = H / TILE_SIZE;
+    private static final int X_TILES = 9;
+    private static final int Y_TILES = 9;
+    private static final int BORDER_SIZE = 1;
+    private static final int BONUS_BORDER = 2;
+    private static final int W = X_TILES*TILE_SIZE + BORDER_SIZE + 3*BONUS_BORDER;
+    private static final int H = Y_TILES*TILE_SIZE + BORDER_SIZE + 3*BONUS_BORDER;
+    
 
     private Tile[][] grid = new Tile[X_TILES][Y_TILES];
     private Scene scene;
@@ -27,10 +33,11 @@ public class SudokuJavaFx extends Application {
     private Parent createContent() {
         Pane root = new Pane();
         root.setPrefSize(W, H);
-
+        root.setStyle("-fx-background-color: black;");
+        
         for (int y = 0; y < Y_TILES; y++) {
             for (int x = 0; x < X_TILES; x++) {
-                Tile tile = new Tile(x, y, Math.random() < 0.2);
+                Tile tile = new Tile(x, y);
 
                 grid[x][y] = tile;
                 root.getChildren().add(tile);
@@ -41,17 +48,22 @@ public class SudokuJavaFx extends Application {
             for (int x = 0; x < X_TILES; x++) {
                 Tile tile = grid[x][y];
 
-                if (tile.hasBomb)
-                    continue;
-
-                long bombs = getNeighbors(tile).stream().filter(t -> t.hasBomb).count();
-
-                if (bombs > 0)
-                    tile.text.setText(String.valueOf(bombs));
             }
         }
-
+        
+        grid[4][5].setSelected(true);
+        grid[7][2].setTileText("3");
+        
         return root;
+    }
+    
+
+    public void sayKeyPress(KeyEvent e){
+    	System.out.println(e.getCode());
+    }
+    
+    public void mousePress(){
+    	System.out.println("Mouse pressed");
     }
 
     private List<Tile> getNeighbors(Tile tile) {
@@ -90,49 +102,50 @@ public class SudokuJavaFx extends Application {
 
     private class Tile extends StackPane {
         private int x, y;
-        private boolean hasBomb;
-        private boolean isOpen = false;
+        private boolean selected = false;
 
-        private Rectangle border = new Rectangle(TILE_SIZE - 2, TILE_SIZE - 2);
+        private Rectangle cell = new Rectangle(TILE_SIZE - 2*BORDER_SIZE, TILE_SIZE - 2*BORDER_SIZE);
+        private Rectangle border = new Rectangle(TILE_SIZE, TILE_SIZE);
         private Text text = new Text();
 
-        public Tile(int x, int y, boolean hasBomb) {
+        public Tile(int x, int y) {
             this.x = x;
             this.y = y;
-            this.hasBomb = hasBomb;
 
-            border.setStroke(Color.LIGHTGRAY);
-
+            border.setStroke(Color.BLUE);
+            border.setFill(Color.BLUE);
+            cell.setStroke(Color.LIGHTGRAY);
+            cell.setFill(Color.WHITE);
+            
             text.setFont(Font.font(18));
-            text.setText(hasBomb ? "X" : "");
-            text.setVisible(false);
+            text.setText("0");
+            
+            border.setVisible((selected ? true : false));
 
-            getChildren().addAll(border, text);
+            getChildren().addAll(border, cell, text);
 
-            setTranslateX(x * TILE_SIZE);
-            setTranslateY(y * TILE_SIZE);
+            setTranslateX(x * TILE_SIZE + BORDER_SIZE + BONUS_BORDER*(x/3));
+            setTranslateY(y * TILE_SIZE + BORDER_SIZE + BONUS_BORDER*(y/3));
 
-            setOnMouseClicked(e -> open());
+        }
+        
+        public void setSelected(boolean bool){
+        	selected = bool;
+        	
+        	border.setVisible(bool);
+        	if(bool){ //Decrease the white cell size, to increase the selected border size
+        		cell.setWidth(TILE_SIZE - 6*BORDER_SIZE);
+        		cell.setHeight(TILE_SIZE - 6*BORDER_SIZE);
+        	} else { //Increase the white cell size, to revert the border size
+        		cell.setWidth(TILE_SIZE - 2*BORDER_SIZE);
+        		cell.setHeight(TILE_SIZE - 2*BORDER_SIZE);
+        	}
+        }
+        
+        public void setTileText(String newText){
+        	text.setText(newText);
         }
 
-        public void open() {
-            if (isOpen)
-                return;
-
-            if (hasBomb) {
-               System.out.println("Game Over");
-               scene.setRoot(createContent());
-               return;
-            }
-
-            isOpen = true;
-            text.setVisible(true);
-            border.setFill(null);
-
-            if (text.getText().isEmpty()) {
-                getNeighbors(this).forEach(Tile::open);
-            }
-        }
     }
 
     @Override
@@ -141,6 +154,8 @@ public class SudokuJavaFx extends Application {
 
         stage.setScene(scene);
         stage.show();
+        
+        
     }
 
     public static void main(String[] args) {
